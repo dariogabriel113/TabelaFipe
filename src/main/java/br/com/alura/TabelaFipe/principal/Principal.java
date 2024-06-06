@@ -6,6 +6,7 @@ import br.com.alura.TabelaFipe.service.ConsumoApi;
 import br.com.alura.TabelaFipe.service.ConverteDados;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -88,9 +89,18 @@ public class Principal {
             DadosModelos dados = conversor.obterDados(json, DadosModelos.class);
             List<DadosVeiculo> dadosVeiculos = new ArrayList<>(dados.modelos());
             exibeListagemDeDados(dadosVeiculos);
+
+            System.out.println("Informe um nome para filtrar:");
+            scanner.nextLine();
+            String valorFiltro = scanner.nextLine();
+            if (!Objects.equals(valorFiltro, "")) {
+                dadosVeiculos = dadosVeiculos.stream().filter(modelo -> modelo.nome().toUpperCase().contains(valorFiltro.toUpperCase())).collect(Collectors.toList());
+                exibeListagemDeDados(dadosVeiculos);
+            }
+
             return valor;
         } catch (InputMismatchException inputMismatchException) {
-            System.out.println("Erro na leitura do código digitado.");
+            System.out.println("Erro na leitura do valor digitado.");
         }
 
         return null;
