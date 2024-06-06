@@ -1,5 +1,6 @@
 package br.com.alura.TabelaFipe.principal;
 
+import br.com.alura.TabelaFipe.model.DadosEnderecoURL;
 import br.com.alura.TabelaFipe.model.DadosModelos;
 import br.com.alura.TabelaFipe.model.DadosVeiculo;
 import br.com.alura.TabelaFipe.service.ConsumoApi;
@@ -14,6 +15,7 @@ public class Principal {
     private ConsumoApi consumoApi = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
     private final String ENDERECO = "https://parallelum.com.br/fipe/api/v1/";
+    private DadosEnderecoURL dadosEndereco = new DadosEnderecoURL();
 
     public void exibirMenu() {
         System.out.println("**** OPÇÕES ****\n" +
@@ -28,16 +30,18 @@ public class Principal {
 
         try {
             String valor = scanner.nextLine();
-            String tipoBuscado = exibeMenuMarcas(valor);
-            if (tipoBuscado != null) {
-                exibeMenuModelos(tipoBuscado);
+            exibeMenuMarcas(valor);
+            if (dadosEndereco.getTipo() != null) {
+                exibeMenuModelos();
+            } else {
+                System.out.println("Tipo não identificado, você digitou: " + valor);
             }
         } catch (InputMismatchException inputMismatchException) {
             System.out.println("Erro na leitura do tipo digitado.");
         }
     }
 
-    public String exibeMenuMarcas(String valor) {
+    public void exibeMenuMarcas(String valor) {
         String tipoParaBusca = buscaTipoVeiculo(valor);
         if (tipoParaBusca != null) {
             System.out.println("Tipo escolhido: " + valor);
@@ -46,11 +50,9 @@ public class Principal {
 
             DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
             exibeListagemDeDados(Arrays.stream(dados).toList());
-            return tipoParaBusca;
-        }
 
-        System.out.println("Tipo não identificado, você digitou: " + valor);
-        return null;
+            dadosEndereco.setTipo(tipoParaBusca);
+        }
     }
 
     public String buscaTipoVeiculo(String valor) {
@@ -77,7 +79,7 @@ public class Principal {
         System.out.println(" ");
     }
 
-    public Integer exibeMenuModelos(String tipoParaBusca) {
+    public void exibeMenuModelos() {
         System.out.println("Informe o código da marca para consulta:");
 
         try {
@@ -85,23 +87,22 @@ public class Principal {
             scanner.nextLine();
             System.out.println("Codigo inserido: " + valor);
 
-            var json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas/" + valor + "/modelos");
+            var json = consumoApi.obterDados(ENDERECO + dadosEndereco.getTipo() + "/marcas/" + valor + "/modelos");
+            if (json != null) {
+                dadosEndereco.setCodigoMarca(valor);
 
-            DadosModelos dados = conversor.obterDados(json, DadosModelos.class);
-            List<DadosVeiculo> dadosVeiculos = new ArrayList<>(dados.modelos());
-            exibeListagemDeDados(dadosVeiculos);
+                DadosModelos dados = conversor.obterDados(json, DadosModelos.class);
+                List<DadosVeiculo> dadosVeiculos = new ArrayList<>(dados.modelos());
+                exibeListagemDeDados(dadosVeiculos);
 
-            Integer codigoModelo = filtrarDadosVeiculos(dadosVeiculos);
-
-            return valor;
+                filtrarDadosVeiculos(dadosVeiculos);
+            }
         } catch (InputMismatchException inputMismatchException) {
             System.out.println("Erro na leitura do valor digitado.");
         }
-
-        return null;
     }
 
-    public Integer filtrarDadosVeiculos(List<DadosVeiculo> dadosVeiculos) {
+    public void filtrarDadosVeiculos(List<DadosVeiculo> dadosVeiculos) {
         List<DadosVeiculo> dadosVeiculosParaFiltro = new ArrayList<>(dadosVeiculos);
 
         boolean isFiltrarAtivo = true;
@@ -127,10 +128,9 @@ public class Principal {
 
         System.out.println("Informe o código de modelo para buscar os anos:");
         Integer codigo = scanner.nextInt();
+        dadosEndereco.setCodigoModelo(codigo);
         scanner.nextLine();
 
         System.out.println("Código informado: " + codigo);
-
-        return codigo;
     }
 }
