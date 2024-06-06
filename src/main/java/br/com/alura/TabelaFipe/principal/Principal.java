@@ -1,28 +1,50 @@
 package br.com.alura.TabelaFipe.principal;
 
+import br.com.alura.TabelaFipe.service.ConsumoApi;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Principal {
 
     private Scanner scanner = new Scanner(System.in);
+    private ConsumoApi consumoApi = new ConsumoApi();
+    private final String ENDERECO = "https://parallelum.com.br/fipe/api/v1/";
 
     public void exibirMenu() {
-        System.out.println("Digite o número do tipo de veículo que deseja consultar, (1) para carro, (2) moto ou (3) caminhão):");
+        System.out.println("**** OPÇÕES ****\n" +
+                "\n" +
+                "Carro\n" +
+                "\n" +
+                "Moto\n" +
+                "\n" +
+                "Caminhão\n" +
+                "\n" +
+                "Digite uma das opções para consultar valores:");
 
         try {
-            Integer valor = scanner.nextInt();
+            String valor = scanner.nextLine();
 
-            List<Integer> tipos = new ArrayList<>(Arrays.asList(1,2,3));
+            String msg = "Tipo escolhido: ";
+            var json = "";
 
-            String msg = "Tipo não identificado, você digitou: ";
-
-            if (tipos.contains(valor)) {
-                msg = "Tipos escolhido: ";
+            String tipoParaBusca = null;
+            if (valor.equalsIgnoreCase("Carro")) {
+                tipoParaBusca = "carros";
+            } else if (valor.equalsIgnoreCase("Moto")) {
+                tipoParaBusca = "motos";
+            } else if (valor.equalsIgnoreCase("Caminhão") || valor.equalsIgnoreCase("Caminhao")) {
+                tipoParaBusca = "caminhoes";
+            } else {
+                msg = "Tipo não identificado, você digitou: ";
             }
 
             System.out.println(msg + valor);
-        } catch(InputMismatchException inputMismatchException) {
+            if (tipoParaBusca != null) {
+                json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas");
+                System.out.println(json);
+            }
+        } catch (InputMismatchException inputMismatchException) {
             System.out.println("Erro na leitura do tipo digitado.");
         }
     }
