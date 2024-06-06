@@ -33,6 +33,7 @@ public class Principal {
             exibeMenuMarcas(valor);
             if (dadosEndereco.getTipo() != null) {
                 exibeMenuModelos();
+                exibeMenuAnos();
             } else {
                 System.out.println("Tipo não identificado, você digitou: " + valor);
             }
@@ -132,5 +133,13 @@ public class Principal {
         scanner.nextLine();
 
         System.out.println("Código informado: " + codigo);
+    }
+
+    public void exibeMenuAnos() {
+        var json = consumoApi.obterDados(ENDERECO + dadosEndereco.getTipo() + "/marcas/" + dadosEndereco.getCodigoMarca() + "/modelos/" + dadosEndereco.getCodigoModelo() + "/anos");
+        if (json != null) {
+            DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
+            exibeListagemDeDados(Arrays.stream(dados).toList());
+        }
     }
 }
