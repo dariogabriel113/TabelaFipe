@@ -4,6 +4,7 @@ public class DadosEnderecoURL {
     private String tipo;
     private Integer codigoMarca;
     private Integer codigoModelo;
+    private String ano;
 
     public String getTipo() {
         return tipo;
@@ -27,5 +28,13 @@ public class DadosEnderecoURL {
 
     public void setCodigoModelo(Integer codigoModelo) {
         this.codigoModelo = codigoModelo;
+    }
+
+    public String getAno() {
+        return ano;
+    }
+
+    public void setAno(String ano) {
+        this.ano = ano;
     }
 }

@@ -3,6 +3,7 @@ package br.com.alura.TabelaFipe.principal;
 import br.com.alura.TabelaFipe.model.DadosEnderecoURL;
 import br.com.alura.TabelaFipe.model.DadosModelos;
 import br.com.alura.TabelaFipe.model.DadosVeiculo;
+import br.com.alura.TabelaFipe.model.Veiculo;
 import br.com.alura.TabelaFipe.service.ConsumoApi;
 import br.com.alura.TabelaFipe.service.ConverteDados;
 
@@ -34,6 +35,10 @@ public class Principal {
             if (dadosEndereco.getTipo() != null) {
                 exibeMenuModelos();
                 exibeMenuAnos();
+
+                if (dadosEndereco.getAno() != null) {
+                    buscaDadosVeiculo();
+                }
             } else {
                 System.out.println("Tipo não identificado, você digitou: " + valor);
             }
@@ -140,6 +145,20 @@ public class Principal {
         if (json != null) {
             DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
             exibeListagemDeDados(Arrays.stream(dados).toList());
+
+            System.out.println("Informe o ano que deseja pesquisar:");
+            String anoBusca = scanner.nextLine();
+            if (anoBusca != null) {
+                dadosEndereco.setAno(anoBusca);
+            }
+        }
+    }
+
+    public void buscaDadosVeiculo() {
+        var json = consumoApi.obterDados(ENDERECO + dadosEndereco.getTipo() + "/marcas/" + dadosEndereco.getCodigoMarca() + "/modelos/" + dadosEndereco.getCodigoModelo() + "/anos/" + dadosEndereco.getAno());
+        if (json != null) {
+            Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+            System.out.println(veiculo);
         }
     }
 }
