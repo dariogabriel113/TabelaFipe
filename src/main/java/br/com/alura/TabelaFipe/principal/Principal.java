@@ -82,6 +82,7 @@ public class Principal {
 
         try {
             Integer valor = scanner.nextInt();
+            scanner.nextLine();
             System.out.println("Codigo inserido: " + valor);
 
             var json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas/" + valor + "/modelos");
@@ -90,13 +91,7 @@ public class Principal {
             List<DadosVeiculo> dadosVeiculos = new ArrayList<>(dados.modelos());
             exibeListagemDeDados(dadosVeiculos);
 
-            System.out.println("Informe um nome para filtrar:");
-            scanner.nextLine();
-            String valorFiltro = scanner.nextLine();
-            if (!Objects.equals(valorFiltro, "")) {
-                dadosVeiculos = dadosVeiculos.stream().filter(modelo -> modelo.nome().toUpperCase().contains(valorFiltro.toUpperCase())).collect(Collectors.toList());
-                exibeListagemDeDados(dadosVeiculos);
-            }
+            Integer codigoModelo = filtrarDadosVeiculos(dadosVeiculos);
 
             return valor;
         } catch (InputMismatchException inputMismatchException) {
@@ -104,5 +99,38 @@ public class Principal {
         }
 
         return null;
+    }
+
+    public Integer filtrarDadosVeiculos(List<DadosVeiculo> dadosVeiculos) {
+        List<DadosVeiculo> dadosVeiculosParaFiltro = new ArrayList<>(dadosVeiculos);
+
+        boolean isFiltrarAtivo = true;
+        while (isFiltrarAtivo) {
+            System.out.println("Informe um nome para filtrar:");
+            String valorFiltro = scanner.nextLine();
+
+            if (!Objects.equals(valorFiltro, "")) {
+                dadosVeiculosParaFiltro = dadosVeiculosParaFiltro.stream()
+                        .filter(modelo -> modelo.nome().toUpperCase().contains(valorFiltro.toUpperCase()))
+                        .collect(Collectors.toList());
+                exibeListagemDeDados(dadosVeiculosParaFiltro);
+            }
+
+            System.out.println("Filtrar novamente? (Sim)/(Não)");
+            String respostaContinuarFiltro = scanner.nextLine();
+            if (respostaContinuarFiltro.equalsIgnoreCase("Não")) {
+                isFiltrarAtivo = false;
+            } else {
+                dadosVeiculosParaFiltro = new ArrayList<>(dadosVeiculos);
+            }
+        }
+
+        System.out.println("Informe o código de modelo para buscar os anos:");
+        Integer codigo = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("Código informado: " + codigo);
+
+        return codigo;
     }
 }
