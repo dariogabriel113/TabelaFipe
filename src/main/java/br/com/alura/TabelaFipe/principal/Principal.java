@@ -1,5 +1,6 @@
 package br.com.alura.TabelaFipe.principal;
 
+import br.com.alura.TabelaFipe.model.DadosModelos;
 import br.com.alura.TabelaFipe.model.DadosVeiculo;
 import br.com.alura.TabelaFipe.service.ConsumoApi;
 import br.com.alura.TabelaFipe.service.ConverteDados;
@@ -26,26 +27,29 @@ public class Principal {
 
         try {
             String valor = scanner.nextLine();
-            buscaDadosDeMarcas(valor);
+            String tipoBuscado = exibeMenuMarcas(valor);
+            if (tipoBuscado != null) {
+                exibeMenuModelos(tipoBuscado);
+            }
         } catch (InputMismatchException inputMismatchException) {
             System.out.println("Erro na leitura do tipo digitado.");
         }
     }
 
-    public void buscaDadosDeMarcas(String valor) {
-        var json = "";
-
+    public String exibeMenuMarcas(String valor) {
         String tipoParaBusca = buscaTipoVeiculo(valor);
         if (tipoParaBusca != null) {
             System.out.println("Tipo escolhido: " + valor);
 
-            json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas");
+            var json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas");
 
             DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
-            exibeListagemDeMarcas(dados);
-        } else {
-            System.out.println("Tipo não identificado, você digitou: " + valor);
+            exibeListagemDeDados(Arrays.stream(dados).toList());
+            return tipoParaBusca;
         }
+
+        System.out.println("Tipo não identificado, você digitou: " + valor);
+        return null;
     }
 
     public String buscaTipoVeiculo(String valor) {
@@ -60,10 +64,35 @@ public class Principal {
         return null;
     }
 
-    public void exibeListagemDeMarcas(DadosVeiculo[] dados) {
-        Arrays.stream(dados).toList()
-                .stream()
+    public void exibeListagemDeDados(List<DadosVeiculo> dados) {
+        System.out.println(" ");
+        System.out.println("=========================================");
+
+        dados.stream()
                 .sorted(Comparator.comparing(DadosVeiculo::codigo))
-                .forEach(e -> System.out.println("Cód: " + e.codigo() + " - " + "Marca: " + e.nome()));
+                .forEach(e -> System.out.println("Cód: " + e.codigo() + " - " + "Nome: " + e.nome()));
+
+        System.out.println("=========================================");
+        System.out.println(" ");
+    }
+
+    public Integer exibeMenuModelos(String tipoParaBusca) {
+        System.out.println("Informe o código da marca para consulta:");
+
+        try {
+            Integer valor = scanner.nextInt();
+            System.out.println("Codigo inserido: " + valor);
+
+            var json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas/" + valor + "/modelos");
+
+            DadosModelos dados = conversor.obterDados(json, DadosModelos.class);
+            List<DadosVeiculo> dadosVeiculos = new ArrayList<>(dados.modelos());
+            exibeListagemDeDados(dadosVeiculos);
+            return valor;
+        } catch (InputMismatchException inputMismatchException) {
+            System.out.println("Erro na leitura do código digitado.");
+        }
+
+        return null;
     }
 }
