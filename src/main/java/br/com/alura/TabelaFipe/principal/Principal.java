@@ -1,6 +1,8 @@
 package br.com.alura.TabelaFipe.principal;
 
+import br.com.alura.TabelaFipe.model.DadosVeiculo;
 import br.com.alura.TabelaFipe.service.ConsumoApi;
+import br.com.alura.TabelaFipe.service.ConverteDados;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,6 +11,7 @@ public class Principal {
 
     private Scanner scanner = new Scanner(System.in);
     private ConsumoApi consumoApi = new ConsumoApi();
+    private ConverteDados conversor = new ConverteDados();
     private final String ENDERECO = "https://parallelum.com.br/fipe/api/v1/";
 
     public void exibirMenu() {
@@ -43,6 +46,12 @@ public class Principal {
             if (tipoParaBusca != null) {
                 json = consumoApi.obterDados(ENDERECO + tipoParaBusca + "/marcas");
                 System.out.println(json);
+
+                DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
+                Arrays.stream(dados).toList()
+                        .stream()
+                        .sorted(Comparator.comparing(DadosVeiculo::codigo))
+                        .forEach(e -> System.out.println("Código: " + e.codigo() + " - " + "Marca: " + e.nome()));
             }
         } catch (InputMismatchException inputMismatchException) {
             System.out.println("Erro na leitura do tipo digitado.");
