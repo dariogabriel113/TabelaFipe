@@ -145,12 +145,17 @@ public class Principal {
         if (json != null && !json.contains("error")) {
             DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
             exibeListagemDeDados(Arrays.stream(dados).toList());
+            List<DadosVeiculo> dadosAnos = Arrays.stream(dados).toList();
 
-            System.out.println("Informe o ano que deseja pesquisar:");
-            String anoBusca = scanner.nextLine();
-            if (anoBusca != null) {
-                dadosEndereco.setAno(anoBusca);
+            for (int i = 0; i < dadosAnos.size(); i++) {
+                buscaDadosVeiculoPorAno(dadosAnos.get(i).codigo());
             }
+
+//            System.out.println("Informe o ano que deseja pesquisar:");
+//            String anoBusca = scanner.nextLine();
+//            if (anoBusca != null) {
+//                dadosEndereco.setAno(anoBusca);
+//            }
         } else {
             System.out.println("Código de modelo não identificado, você digitou: " + dadosEndereco.getCodigoModelo());
         }
@@ -162,5 +167,17 @@ public class Principal {
             Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
             System.out.println(veiculo);
         }
+    }
+
+    public Veiculo buscaDadosVeiculoPorAno(String ano) {
+        Veiculo veiculo = null;
+
+        var json = consumoApi.obterDados(ENDERECO + dadosEndereco.getTipo() + "/marcas/" + dadosEndereco.getCodigoMarca() + "/modelos/" + dadosEndereco.getCodigoModelo() + "/anos/" + ano);
+        if (json != null) {
+            veiculo = conversor.obterDados(json, Veiculo.class);
+            System.out.println(veiculo);
+        }
+
+        return veiculo;
     }
 }
