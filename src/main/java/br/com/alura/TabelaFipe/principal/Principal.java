@@ -142,7 +142,7 @@ public class Principal {
 
     public void exibeMenuAnos() {
         var json = consumoApi.obterDados(ENDERECO + dadosEndereco.getTipo() + "/marcas/" + dadosEndereco.getCodigoMarca() + "/modelos/" + dadosEndereco.getCodigoModelo() + "/anos");
-        if (json != null) {
+        if (json != null && !json.contains("error")) {
             DadosVeiculo[] dados = conversor.obterDados(json, DadosVeiculo[].class);
             exibeListagemDeDados(Arrays.stream(dados).toList());
 
@@ -151,6 +151,8 @@ public class Principal {
             if (anoBusca != null) {
                 dadosEndereco.setAno(anoBusca);
             }
+        } else {
+            System.out.println("Código de modelo não identificado, você digitou: " + dadosEndereco.getCodigoModelo());
         }
     }
 
